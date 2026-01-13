@@ -29,11 +29,13 @@ jobs:
     - name: 验证依赖安装
       shell: cmd
       run: |
-        chcp 65001
         python -c "import cv2; print('OpenCV:', cv2.__version__)"
+        if errorlevel 1 exit /b 1
         python -c "import numpy; print('NumPy:', numpy.__version__)"
+        if errorlevel 1 exit /b 1
         python -c "import mediapipe; print('MediaPipe:', mediapipe.__version__)"
-        echo All dependencies installed successfully!
+        if errorlevel 1 exit /b 1
+        echo All dependencies verified successfully!
     
     - name: 打包EXE（包含所有依赖）
       shell: cmd
