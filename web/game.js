@@ -175,6 +175,12 @@ function initGame() {
     ctx = canvas.getContext('2d');
     video = document.getElementById('video');
 
+    // 确保 video 元素存在
+    if (!video) {
+        console.error('Video element not found!');
+        return;
+    }
+
     // 设置画布大小
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -527,5 +533,7 @@ async function startGame() {
 
 // 页面加载时初始化 MediaPipe
 window.addEventListener('load', () => {
+    // 确保 video 元素已经加载
+    video = document.getElementById('video');
     setupMediaPipe();
 });
