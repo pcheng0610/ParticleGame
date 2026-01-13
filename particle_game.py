@@ -7,6 +7,27 @@ import numpy as np
 import mediapipe as mp
 from typing import List, Tuple, Optional
 
+# MediaPipe版本兼容性处理
+try:
+    # 尝试新版本导入方式
+    from mediapipe.python.solutions import hands as mp_hands_module
+    from mediapipe.python.solutions import drawing_utils as mp_drawing_module
+    from mediapipe.python.solutions import drawing_styles as mp_drawing_styles_module
+    MP_NEW_API = True
+except ImportError:
+    # 使用旧版本导入方式
+    try:
+        mp_hands_module = mp.solutions.hands
+        mp_drawing_module = mp.solutions.drawing_utils
+        mp_drawing_styles_module = mp.solutions.drawing_styles
+        MP_NEW_API = False
+    except AttributeError:
+        # 如果都失败，尝试直接导入
+        import mediapipe.python.solutions.hands as mp_hands_module
+        import mediapipe.python.solutions.drawing_utils as mp_drawing_module
+        import mediapipe.python.solutions.drawing_styles as mp_drawing_styles_module
+        MP_NEW_API = True
+
 
 # 配置参数
 class Config:
@@ -843,9 +864,10 @@ class HandGestureDetector:
     
     def __init__(self):
         """初始化手势检测器"""
-        self.mp_hands = mp.solutions.hands
-        self.mp_drawing = mp.solutions.drawing_utils
-        self.mp_drawing_styles = mp.solutions.drawing_styles
+        # 使用兼容的导入方式
+        self.mp_hands = mp_hands_module
+        self.mp_drawing = mp_drawing_module
+        self.mp_drawing_styles = mp_drawing_styles_module
         
         # 初始化Hands模型
         self.hands = self.mp_hands.Hands(
@@ -926,7 +948,7 @@ class GestureAnalyzer:
         """
         self.width = width
         self.height = height
-        self.mp_hands = mp.solutions.hands
+        self.mp_hands = mp_hands_module
 
     def analyze(self, landmarks: any) -> Tuple[str, Optional[Tuple[int, int]], Optional[Tuple[float, float]], Optional[Tuple[int, int]]]:
         """分析手势状态
