@@ -1544,4 +1544,24 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    import traceback
+    
+    try:
+        main()
+    except Exception as e:
+        print("\n" + "="*50)
+        print("程序发生错误！")
+        print("="*50)
+        print(f"错误类型: {type(e).__name__}")
+        print(f"错误信息: {str(e)}")
+        print("\n详细错误信息:")
+        traceback.print_exc()
+        print("="*50)
+        print("\n按任意键退出...")
+        try:
+            input()  # 等待用户按键
+        except:
+            import time
+            time.sleep(5)  # 如果input失败，等待5秒
+        sys.exit(1)
