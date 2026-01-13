@@ -24,6 +24,13 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
     
+    - name: 验证依赖安装
+      run: |
+        python -c "import cv2; import numpy; import mediapipe; print('所有依赖已安装')"
+        python -c "import cv2; print('OpenCV版本:', cv2.__version__)"
+        python -c "import numpy; print('NumPy版本:', numpy.__version__)"
+        python -c "import mediapipe; print('MediaPipe版本:', mediapipe.__version__)"
+    
     - name: 打包EXE（包含所有依赖）
       shell: cmd
       run: |
@@ -37,7 +44,18 @@ jobs:
           --collect-all mediapipe ^
           --collect-all cv2 ^
           --collect-all numpy ^
+          --collect-binaries mediapipe ^
+          --collect-data mediapipe ^
+          --collect-submodules mediapipe ^
+          --collect-submodules cv2 ^
+          --collect-submodules numpy ^
+          --noconfirm ^
           particle_game.py
+    
+    - name: 检查EXE文件大小
+      run: |
+        dir dist\ParticleGame.exe
+        echo "EXE文件大小检查完成"
     
     - name: 上传Artifact
       uses: actions/upload-artifact@v4
