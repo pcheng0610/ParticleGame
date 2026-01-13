@@ -20,16 +20,18 @@ jobs:
     
     - name: 安装依赖
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        python -m pip install --upgrade pip setuptools wheel
+        pip install opencv-python==4.8.0.74
+        pip install numpy==1.24.3
+        pip install mediapipe==0.10.3
         pip install pyinstaller
     
     - name: 验证依赖安装
       run: |
-        python -c "import cv2; import numpy; import mediapipe; print('所有依赖已安装')"
         python -c "import cv2; print('OpenCV版本:', cv2.__version__)"
         python -c "import numpy; print('NumPy版本:', numpy.__version__)"
         python -c "import mediapipe; print('MediaPipe版本:', mediapipe.__version__)"
+        echo "所有依赖已成功安装！"
     
     - name: 打包EXE（包含所有依赖）
       shell: cmd
