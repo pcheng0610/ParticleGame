@@ -24,9 +24,19 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
     
-    - name: 打包EXE
+    - name: 打包EXE（包含所有依赖）
       run: |
-        pyinstaller --onefile --name ParticleGame --console --hidden-import=mediapipe --hidden-import=cv2 --hidden-import=numpy particle_game.py
+        pyinstaller --onefile --name ParticleGame --console ^
+          --hidden-import=cv2 ^
+          --hidden-import=numpy ^
+          --hidden-import=mediapipe ^
+          --hidden-import=mediapipe.python.solutions.hands ^
+          --hidden-import=mediapipe.python.solutions.drawing_utils ^
+          --hidden-import=mediapipe.python.solutions.drawing_styles ^
+          --collect-all mediapipe ^
+          --collect-all cv2 ^
+          --collect-all numpy ^
+          particle_game.py
     
     - name: 上传Artifact
       uses: actions/upload-artifact@v4
