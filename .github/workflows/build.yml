@@ -50,6 +50,11 @@ jobs:
           --hidden-import=cv2 ^
           --hidden-import=numpy ^
           --hidden-import=mediapipe ^
+          --hidden-import=mediapipe.solutions ^
+          --hidden-import=mediapipe.solutions.hands ^
+          --hidden-import=mediapipe.solutions.drawing_utils ^
+          --hidden-import=mediapipe.solutions.drawing_styles ^
+          --hidden-import=mediapipe.python.solutions ^
           --hidden-import=mediapipe.python.solutions.hands ^
           --hidden-import=mediapipe.python.solutions.drawing_utils ^
           --hidden-import=mediapipe.python.solutions.drawing_styles ^
