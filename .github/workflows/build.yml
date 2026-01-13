@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: 设置Python
       uses: actions/setup-python@v4
@@ -29,7 +29,7 @@ jobs:
         pyinstaller --onefile --name ParticleGame particle_game.py
     
     - name: 上传Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ParticleGame-Windows
         path: dist/ParticleGame.exe
