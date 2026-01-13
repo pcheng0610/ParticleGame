@@ -25,6 +25,7 @@ jobs:
         pip install pyinstaller
     
     - name: 打包EXE（包含所有依赖）
+      shell: cmd
       run: |
         pyinstaller --onefile --name ParticleGame --console ^
           --hidden-import=cv2 ^
