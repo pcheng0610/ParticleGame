@@ -216,6 +216,7 @@ async function setupMediaPipe() {
     try {
         loadingText.textContent = '正在初始化 MediaPipe Hands...';
 
+        // 初始化 MediaPipe Hands
         hands = new Hands({
             locateFile: (file) => {
                 return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -233,22 +234,40 @@ async function setupMediaPipe() {
 
         loadingText.textContent = '正在请求摄像头权限...';
 
-        camera = new Camera(video, {
-            onFrame: async () => {
-                await hands.send({ image: video });
-            },
-            width: 640,
-            height: 480
+        // 使用标准的 getUserMedia API（更好的兼容性）
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: 640,
+                height: 480,
+                facingMode: 'user'
+            }
         });
 
-        await camera.start();
+        video.srcObject = stream;
+        await video.play();
 
         loadingText.textContent = '加载完成！点击开始游戏';
 
+        // 开始处理视频帧
+        processVideoFrame();
+
     } catch (error) {
         console.error('MediaPipe 初始化失败:', error);
-        showError('无法访问摄像头或初始化手势识别。请确保：\n1. 授予浏览器摄像头权限\n2. 使用 HTTPS 或 localhost\n3. 摄像头未被其他应用占用');
+        showError(`无法访问摄像头或初始化手势识别。\n\n错误详情: ${error.message}\n\n请确保：\n1. 授予浏览器摄像头权限\n2. 使用 HTTPS 或 localhost\n3. 摄像头未被其他应用占用`);
     }
+}
+
+// 处理视频帧
+async function processVideoFrame() {
+    if (!video || !hands) return;
+
+    try {
+        await hands.send({ image: video });
+    } catch (error) {
+        console.error('处理帧失败:', error);
+    }
+
+    requestAnimationFrame(processVideoFrame);
 }
 
 function onHandResults(results) {
