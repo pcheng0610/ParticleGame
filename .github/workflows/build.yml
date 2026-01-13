@@ -61,7 +61,9 @@ jobs:
           --collect-submodules mediapipe ^
           --collect-submodules cv2 ^
           --collect-submodules numpy ^
+          --add-data "mediapipe;mediapipe" ^
           --noconfirm ^
+          --noupx ^
           particle_game.py
     
     - name: 检查EXE文件大小
