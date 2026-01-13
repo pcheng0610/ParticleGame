@@ -9,24 +9,21 @@ from typing import List, Tuple, Optional
 
 # MediaPipe版本兼容性处理
 try:
-    # 尝试新版本导入方式
-    from mediapipe.python.solutions import hands as mp_hands_module
-    from mediapipe.python.solutions import drawing_utils as mp_drawing_module
-    from mediapipe.python.solutions import drawing_styles as mp_drawing_styles_module
-    MP_NEW_API = True
-except ImportError:
-    # 使用旧版本导入方式
+    # 首先尝试标准导入方式（适用于大多数版本）
+    mp_hands_module = mp.solutions.hands
+    mp_drawing_module = mp.solutions.drawing_utils
+    mp_drawing_styles_module = mp.solutions.drawing_styles
+except AttributeError:
+    # 如果mp.solutions不存在，尝试直接导入
     try:
-        mp_hands_module = mp.solutions.hands
-        mp_drawing_module = mp.solutions.drawing_utils
-        mp_drawing_styles_module = mp.solutions.drawing_styles
-        MP_NEW_API = False
-    except AttributeError:
-        # 如果都失败，尝试直接导入
+        from mediapipe.python.solutions import hands as mp_hands_module
+        from mediapipe.python.solutions import drawing_utils as mp_drawing_module
+        from mediapipe.python.solutions import drawing_styles as mp_drawing_styles_module
+    except ImportError:
+        # 最后尝试完整路径导入
         import mediapipe.python.solutions.hands as mp_hands_module
         import mediapipe.python.solutions.drawing_utils as mp_drawing_module
         import mediapipe.python.solutions.drawing_styles as mp_drawing_styles_module
-        MP_NEW_API = True
 
 
 # 配置参数
