@@ -1,0 +1,23 @@
+# 使用Docker在Linux上打包Windows EXE（备用版本 - 使用兼容的依赖版本）
+
+FROM cdrx/pyinstaller-windows:python3
+
+# 设置工作目录
+WORKDIR /src
+
+# 升级pip和setuptools
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# 复制项目文件
+COPY particle_game.py .
+COPY requirements.txt .
+
+# 安装依赖（使用与Python 3.7完全兼容的版本）
+RUN pip install numpy==1.21.6 && \
+    pip install opencv-python==4.5.5.64 && \
+    pip install mediapipe==0.10.3
+
+# 打包
+RUN pyinstaller --onefile --name ParticleGame particle_game.py
+
+# 输出结果在 /src/dist/ParticleGame.exe

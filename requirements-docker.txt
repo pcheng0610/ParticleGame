@@ -1,0 +1,6 @@
+# Docker环境使用的依赖版本（兼容Python 3.7）
+# 使用预编译的wheel包，避免从源码编译
+
+opencv-python==4.8.0.74
+mediapipe==0.10.3
+numpy==1.21.6

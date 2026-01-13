@@ -1,0 +1,22 @@
+ParticleGame/
+├── particle_game.py          # 游戏主程序（63KB）
+├── launcher.py               # 智能启动器（自动安装依赖）
+├── requirements.txt          # Python依赖列表
+├── README.md                 # 完整使用文档
+├── BUILD_INSTRUCTIONS.md     # 打包详细教程
+├── build_game.sh            # Linux/Mac打包脚本
+├── build_game.bat           # Windows打包脚本
+└── 快速开始.txt              # 快速开始指南
+
+使用说明：
+=========
+
+1. 立即玩游戏
+   python launcher.py
+
+2. 打包分享给朋友
+   ./build_game.sh  (Linux/Mac)
+   build_game.bat   (Windows)
+
+3. 直接分享源代码
+   将整个 ParticleGame 文件夹打包发送
