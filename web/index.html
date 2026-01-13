@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手势控制粒子游戏 - 万剑归宗</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #loading h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6; }
+            50% { text-shadow: 0 0 10px #fff, 0 0 20px #ff4da6, 0 0 30px #ff4da6; }
+        }
+
+        #loading-text {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+        }
+
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        #video {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 240px;
+            height: 180px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: none; /* 默认隐藏摄像头画面 */
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .ui-stat {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        #instructions h3 {
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        #instructions ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        #instructions li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        #instructions li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+        }
+
+        #error-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            display: none;
+            z-index: 2000;
+        }
+
+        #error-message h2 {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载界面 -->
+    <div id="loading">
+        <h1>手势控制粒子游戏</h1>
+        <h2>万剑归宗</h2>
+        <div class="spinner"></div>
+        <div id="loading-text">正在加载 MediaPipe...</div>
+        <div style="margin-top: 30px; text-align: center;">
+            <button class="button" onclick="startGame()">开始游戏</button>
+        </div>
+    </div>
+
+    <!-- 错误提示 -->
+    <div id="error-message">
+        <h2>⚠️ 错误</h2>
+        <p id="error-text"></p>
+        <button class="button" onclick="location.reload()">重新加载</button>
+    </div>
+
+    <!-- 游戏容器 -->
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <video id="video" autoplay playsinline></video>
+
+        <!-- UI 叠加层 -->
+        <div id="ui-overlay">
+            <div class="ui-stat">FPS: <span id="fps">0</span></div>
+            <div class="ui-stat">得分: <span id="score">0</span></div>
+            <div class="ui-stat">波次: <span id="wave">1</span></div>
+            <div class="ui-stat">连击: <span id="combo">0</span></div>
+        </div>
+
+        <!-- 操作说明 -->
+        <div id="instructions">
+            <h3>🎮 操作说明</h3>
+            <ul>
+                <li><strong>食指和中指并拢</strong>：粒子朝指向方向快速移动</li>
+                <li><strong>握拳/双指合并</strong>：粒子聚集并突然加速</li>
+                <li><strong>手掌张开</strong>：粒子围绕手掌圆周运动</li>
+                <li><strong>用粒子攻击怪物</strong>（大球），击中减血！</li>
+            </ul>
+            <div style="margin-top: 15px;">
+                <button class="button" onclick="toggleVideo()">切换摄像头显示</button>
+                <button class="button" onclick="toggleInstructions()">隐藏说明</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+    <script src="game.js"></script>
+</body>
+</html>
