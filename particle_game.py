@@ -1296,10 +1296,27 @@ def main():
     print("  - 按 'q'、'ESC' 或 'd' 退出")
     print()
 
-    # 初始化摄像头
-    cap = cv2.VideoCapture(Config.CAMERA_INDEX)  # Linux 使用默认后端
+    # 初始化摄像头（Windows使用DSHOW后端）
+    import platform
+    if platform.system() == "Windows":
+        cap = cv2.VideoCapture(Config.CAMERA_INDEX, cv2.CAP_DSHOW)
+    else:
+        cap = cv2.VideoCapture(Config.CAMERA_INDEX)
+
     if not cap.isOpened():
+        print("="*60)
         print("错误：无法打开摄像头！")
+        print("可能的原因：")
+        print("  1. 摄像头未连接或被其他程序占用")
+        print("  2. 需要授予摄像头访问权限（Windows设置 > 隐私 > 相机）")
+        print("  3. 摄像头驱动程序未正确安装")
+        print("="*60)
+        print("\n按任意键退出...")
+        try:
+            input()
+        except:
+            import time
+            time.sleep(10)
         return
 
     # 设置摄像头分辨率
@@ -1565,22 +1582,42 @@ def main():
 if __name__ == "__main__":
     import sys
     import traceback
-    
+    import platform
+
+    # 显示启动信息
+    print("="*60)
+    print("手势控制粒子游戏 - 万剑归宗")
+    print("="*60)
+    print(f"运行平台: {platform.system()} {platform.release()}")
+    print(f"Python版本: {sys.version}")
+    print("="*60)
+    print()
+
     try:
         main()
+    except KeyboardInterrupt:
+        print("\n程序被用户中断")
     except Exception as e:
-        print("\n" + "="*50)
+        print("\n" + "="*60)
         print("程序发生错误！")
-        print("="*50)
+        print("="*60)
         print(f"错误类型: {type(e).__name__}")
         print(f"错误信息: {str(e)}")
         print("\n详细错误信息:")
         traceback.print_exc()
-        print("="*50)
+        print("="*60)
         print("\n按任意键退出...")
         try:
             input()  # 等待用户按键
         except:
             import time
-            time.sleep(5)  # 如果input失败，等待5秒
+            time.sleep(10)  # 如果input失败，等待10秒
         sys.exit(1)
+
+    # 正常退出时也等待用户确认
+    print("\n按任意键退出...")
+    try:
+        input()
+    except:
+        import time
+        time.sleep(3)

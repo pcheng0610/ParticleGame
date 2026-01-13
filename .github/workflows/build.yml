@@ -58,33 +58,76 @@ jobs:
           --hidden-import=mediapipe.python.solutions.hands ^
           --hidden-import=mediapipe.python.solutions.drawing_utils ^
           --hidden-import=mediapipe.python.solutions.drawing_styles ^
+          --hidden-import=platform ^
+          --hidden-import=PIL._tkinter_finder ^
           --collect-all mediapipe ^
           --collect-all cv2 ^
           --collect-all numpy ^
-          --collect-binaries mediapipe ^
-          --collect-data mediapipe ^
-          --collect-submodules mediapipe ^
-          --collect-submodules cv2 ^
-          --collect-submodules numpy ^
+          --copy-metadata mediapipe ^
+          --copy-metadata opencv-python ^
+          --copy-metadata numpy ^
           --noconfirm ^
           --noupx ^
+          --clean ^
+          --log-level=INFO ^
           particle_game.py
+        if errorlevel 1 (
+          echo PyInstaller打包失败！
+          exit /b 1
+        )
+        echo PyInstaller打包成功！
     
-    - name: 检查EXE文件大小
+    - name: 检查EXE文件
+      shell: cmd
       run: |
+        if not exist "dist\ParticleGame.exe" (
+          echo 错误：EXE文件不存在！
+          exit /b 1
+        )
         dir dist\ParticleGame.exe
-        echo "EXE文件大小检查完成"
+        echo EXE文件创建成功！
+
+    - name: 创建说明文件
+      shell: cmd
+      run: |
+        echo 手势控制粒子游戏 - 万剑归宗 > dist\README.txt
+        echo. >> dist\README.txt
+        echo 使用说明： >> dist\README.txt
+        echo 1. 确保电脑有摄像头 >> dist\README.txt
+        echo 2. 双击运行 ParticleGame.exe >> dist\README.txt
+        echo 3. 授予摄像头权限（如果Windows提示） >> dist\README.txt
+        echo 4. 使用手势控制粒子： >> dist\README.txt
+        echo    - 食指和中指并拢：粒子朝指向方向快速移动 >> dist\README.txt
+        echo    - 握拳/双指合并：粒子聚集并突然加速 >> dist\README.txt
+        echo    - 手掌张开：粒子围绕手掌圆周运动 >> dist\README.txt
+        echo    - 用粒子攻击怪物（大球），击中减血！ >> dist\README.txt
+        echo. >> dist\README.txt
+        echo 按键说明： >> dist\README.txt
+        echo - B键：切换辅助线显示 >> dist\README.txt
+        echo - R键：重新开始游戏 >> dist\README.txt
+        echo - Q/ESC/D键：退出游戏 >> dist\README.txt
+        echo. >> dist\README.txt
+        echo 故障排除： >> dist\README.txt
+        echo - 如果无法打开摄像头，请检查Windows隐私设置（设置 ^> 隐私 ^> 相机） >> dist\README.txt
+        echo - 确保摄像头未被其他程序占用 >> dist\README.txt
+        echo - 如果程序闪退，请查看错误信息并等待10秒查看详情 >> dist\README.txt
+        echo. >> dist\README.txt
+        echo GitHub: https://github.com/pcheng0610/ParticleGame >> dist\README.txt
     
     - name: 上传Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ParticleGame-Windows
-        path: dist/ParticleGame.exe
+        path: |
+          dist/ParticleGame.exe
+          dist/README.txt
     
     - name: 创建Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/ParticleGame.exe
+        files: |
+          dist/ParticleGame.exe
+          dist/README.txt
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
